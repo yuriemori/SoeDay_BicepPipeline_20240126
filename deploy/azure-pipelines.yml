@@ -1,22 +1,33 @@
+# トリガーは設定されていません。つまり、このパイプラインは手動でのみ実行できます。
 trigger: none
 
+# ビルドが実行されるエージェントプールを定義します。ここでは、最新のUbuntuイメージが使用されます。
 pool:
   vmImage: ubuntu-latest
 
+# パイプラインで使用される変数を定義します。ここでは、デフォルトのデプロイメントロケーションが日本東部に設定されています。
 variables:
   - name: deploymentDefaultLocation
     value: japaneast
 
+# パイプラインのジョブを定義します。このパイプラインには1つのジョブがあります。
 jobs:
 - job:
-  steps: 
+  steps:
+  # パイプラインのジョブには、Azure Resource Managerテンプレートデプロイメントタスクを使用してBicepファイルをデプロイします。
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
+      # サービス接続名を指定します。これは、デプロイ対象のAzureへの認証に使用されます。※環境変数で指定してください
       connectedServiceName: $(ServiceConnectionName)
+      # デプロイメントの名前を指定します。ここでは、ビルド番号が使用されます。
       deploymentName: $(Build.BuildNumber)
+      # デプロイメントのロケーションを指定します。※環境変数で指定してください
       location: $(deploymentDefaultLocation)
+      # リソースグループの名前を指定します。　※環境変数で指定してください
       resourceGroupName: $(ResourceGroupName)
+      # デプロイするBicepファイルのパスを指定します。 
       csmFile: deploy/main.bicep
+      # Bicepファイルのパラメータをオーバーライドします。※環境変数で指定して下さい
       overrideParameters: >
         -environmentType $(EnvironmentType)
         -deployDemoManualsStorageAccount $(DeployDemoManualsStorageAccount)

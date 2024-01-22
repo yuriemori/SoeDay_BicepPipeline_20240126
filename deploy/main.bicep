@@ -1,6 +1,10 @@
+// Azure App Serviceとストレージアカウントをデプロイするための設定を行います。環境タイプ（nonprodまたはprod）に基づいて、App Service PlanとストレージアカウントのSKUを選択します。
+
+// Azureリソースがデプロイされるリージョンを指定します。
 @description('The Azure region into which the resources should be deployed.')
 param location string = resourceGroup().location
 
+// 環境の種類を指定します。これはnonprodまたはprodでなければなりません。
 @description('The type of environment. This must be nonprod or prod.')
 @allowed([
   'nonprod'
@@ -8,18 +12,21 @@ param location string = resourceGroup().location
 ])
 param environmentType string
 
+// デモ用のストレージアカウントをデプロイするかどうかを指定します。
 @description('Indicates whether to deploy the storage account for demo.')
 param deployDemoManualsStorageAccount bool
 
+// グローバルに一意である必要があるリソース名に追加する一意の接尾辞を指定します。
 @description('A unique suffix to add to resource names that need to be globally unique.')
 @maxLength(13)
 param resourceNameSuffix string = uniqueString(resourceGroup().id)
 
+// App Serviceのアプリ名とプラン名を定義します。
 var appServiceAppName = 'demo-${resourceNameSuffix}'
 var appServicePlanName = 'demo-plan'
 var demoManualsStorageAccountName = 'demoweb${resourceNameSuffix}'
 
-// Define the SKUs for each component based on the environment type.
+// 環境タイプに基づいて各コンポーネントのSKUを定義します。
 var environmentConfigurationMap = {
   nonprod: {
     appServicePlan: {
